@@ -72,30 +72,28 @@ fun WeatherLayout(context: MainActivity, modifier: Modifier = Modifier) {
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier
-    )
+        modifier = modifier)
     {
         Image(
             painter = iconImage,
             contentDescription = null,
             contentScale = ContentScale.Fit)
 
-        Temp_today()
-        Condition_text()
-        Location_text()
-        Fore_cast()
-        SunRiseSet()
-
+        LazyColumn(horizontalAlignment = Alignment.CenterHorizontally)
+        {
+            item { Temp_today() }
+            item { Condition_text() }
+            item { Location_text() }
+            item { Fore_cast() }
+            item { SunRiseSet() }
+        }
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)) {}
-        ApiLinkButton {
-        }
+        ApiLinkButton {}
     }
 }
-
-
 
 @Composable
 fun Location_text(modifier: Modifier = Modifier) {
