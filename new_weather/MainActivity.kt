@@ -93,11 +93,7 @@ class MainActivity : ComponentActivity() {
                             Surface(
                                 modifier = Modifier.fillMaxSize(),
                                 color = MaterialTheme.colorScheme.background
-                            ) {
-                                val compose_view = ComposeView(this)
-                                val weather = viewModel<QueryAPI>()
-                                setComposableContent(weather, compose_view, this)
-                            }
+                            ) { }
                         }
                     }
                 }
@@ -121,13 +117,13 @@ class MainActivity : ComponentActivity() {
         dialog.dismiss()
 
         val queryAPI: QueryAPI by viewModels { QueryAPI.Factory }
-        queryAPI.listQueryState.value.currState = current
-        queryAPI.listQueryState.value.forcState = forc
+        val lQueryState = queryAPI.listQueryState.value
+        lQueryState.currState = current
+        lQueryState.forcState = forc
 
         val compose_view = ComposeView(this)
         setContent{
-            val viewmodel = viewModel<QueryAPI>()
-            setComposableContent(viewmodel, compose_view, this)
+            setComposableContent(lQueryState, compose_view, this)
         }
     }
 
