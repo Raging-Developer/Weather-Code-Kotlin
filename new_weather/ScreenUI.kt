@@ -34,9 +34,7 @@ import com.example.new_weather.R
 import java.text.SimpleDateFormat
 
 @Composable
-fun setComposableContent(queryViewModel: QueryAPI, composeView: ComposeView, context: MainActivity){
-    val lQueryState = queryViewModel.listQueryState.value
-
+fun setComposableContent(lQueryState: ForcUIState, composeView: ComposeView, context: MainActivity){
     composeView.apply {
         setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
         BackGroundImage(lQueryState, context)
