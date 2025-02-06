@@ -16,22 +16,38 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
+import com.google.android.gms.tasks.CancellationToken
+import com.google.android.gms.tasks.CancellationTokenSource
+import com.google.android.gms.tasks.OnTokenCanceledListener
 import java.util.Locale
 
+// Just let me use the inbuilt GPS tracker, Pichai does not need to know where I am.
 class GetLocation {
 
     companion object {
         lateinit var fusedClient: FusedLocationProviderClient
         lateinit var callback: LocationCallback
         lateinit var locRequest: LocationRequest
-
     }
 }
 
 @SuppressLint("MissingPermission")
 fun get_location(context: Context) {
-    fusedClient = LocationServices.getFusedLocationProviderClient(context)
 
+    callback = object : LocationCallback() {
+        override fun onLocationResult(locationResult: LocationResult) {
+            super.onLocationResult(locationResult)
+            for (l in locationResult.locations) {
+                if (l != null) return
+            }
+        }
+    }
+
+    locRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 300000)
+        .setWaitForAccurateLocation(true)
+        .build()
+
+    fusedClient = LocationServices.getFusedLocationProviderClient(context) //this is where the location is corrected for the first time.
     fusedClient.lastLocation
         .addOnSuccessListener { l: Location? ->
             if (l != null) {
@@ -40,19 +56,17 @@ fun get_location(context: Context) {
             }
         }
 
-    locRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 300000)
-        .setWaitForAccurateLocation(false)
-        .build()
-    callback = object : LocationCallback() {
-        override fun onLocationResult(locationResult: LocationResult) {
-            for (l in locationResult.locations) {
-                if (l != null) {
-                    latitude = l.latitude
-                    longitude = l.longitude
-                }
+
+    fusedClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY , object : CancellationToken() {
+        override fun onCanceledRequested(p0: OnTokenCanceledListener) = CancellationTokenSource().token
+        override fun isCancellationRequested() = false
+    })
+        .addOnSuccessListener { l: Location? ->
+            if (l != null) {
+                latitude = l.latitude
+                longitude = l.longitude
             }
         }
-    }
 }
 
 fun use_lat_and_long(context: Context) {
@@ -80,5 +94,4 @@ fun use_lat_and_long(context: Context) {
         }
     }
 }
-
 
