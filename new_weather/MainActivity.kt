@@ -37,41 +37,7 @@ import com.google.android.gms.location.LocationServices
 
 class MainActivity : ComponentActivity() {
     private val REQ_CODE = 111
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        fusedClient = LocationServices.getFusedLocationProviderClient(this)
-
-        //Here be your permissions request, everybody else gets suppressed.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val cluckup1 = checkSelfPermission(ACCESS_FINE_LOCATION)
-            if (cluckup1 != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(
-                    arrayOf(
-                        ACCESS_FINE_LOCATION,
-                        ACCESS_COARSE_LOCATION,
-                        INTERNET,
-                        ACCESS_NETWORK_STATE),
-                    REQ_CODE)
-            }
-        }
-
-        get_location(this)
-        use_lat_and_long(this)
-        val api_location = "${latitude},${longitude}"
-        getJsonFromAPI(api_location, this)
-        fusedClient.requestLocationUpdates(locRequest, callback, Looper.getMainLooper())
-
-        setContent {
-            New_WeatherTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background) {
-                        BackGroundImage(this)
-                }
-            }
-        }
-    }
+    private lateinit var dialog: AlertDialog
 
     override fun onStart(){super.onStart()}
     override fun onPause(){super.onPause()}
@@ -85,26 +51,90 @@ class MainActivity : ComponentActivity() {
     override fun onDestroy(){super.onDestroy()}
     override fun onRestart(){super.onRestart()}
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        //Here be your permissions request, everybody else gets suppressed.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val cluckup1 = checkSelfPermission(ACCESS_FINE_LOCATION)
+            if (cluckup1 != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(
+                    arrayOf(
+                        ACCESS_FINE_LOCATION,
+                        ACCESS_COARSE_LOCATION,
+                        INTERNET,
+                        ACCESS_NETWORK_STATE
+                    ),
+                    REQ_CODE
+                )
+            }
+        }
+
+        dialog = AlertDialog.Builder(this).create()
+        dialog.setMessage("Give me a few secs...")
+        dialog.show()
+
+        get_location(this)
+
+        fusedClient.requestLocationUpdates(locRequest, callback, Looper.getMainLooper())
+        fusedClient.lastLocation
+            .addOnSuccessListener { l: Location? ->
+                if (l != null) {
+                    latitude = l.latitude
+                    longitude = l.longitude
+                    api_location = "${latitude},${longitude}"
+
+                    use_lat_and_long(this)
+                    getJsonFromAPI(api_location, this)
+
+                    //Cannot be debuged, which is great, apparently
+                    setContent {
+                        New_WeatherTheme {
+                            Surface(
+                                modifier = Modifier.fillMaxSize(),
+                                color = MaterialTheme.colorScheme.background
+                            ) {
+                                val compose_view = ComposeView(this)
+                                val weather = viewModel<QueryAPI>()
+                                setComposableContent(weather, compose_view, this)
+                            }
+                        }
+                    }
+                }
+            }
+    }
+
     @SuppressLint("MissingPermission")
     private fun startLocationUpates() {
         fusedClient.requestLocationUpdates(locRequest, callback, Looper.getMainLooper())
+        fusedClient.lastLocation
+        .addOnSuccessListener { l: Location? ->
+            if (l != null) {
+                latitude = l.latitude
+                longitude = l.longitude
+            }
+        }
     }
 
+    //Load up the viewModel using a Factory
     fun feed_success(current: Current, forc: Forecast) {
-        cond = current.getCondition()
-        astro = forc.getAstro()
-        temp = current.getTemp_c().toString()
-        chill = current.getFeelslike_c().toString()
-        cond_text = current.getCondition()?.getText().toString()
-        icon = current.getCondition()?.getIcon().toString()
-        forecast_day = forc.getForecast_day()
-        wind_mph = current.getWind_mph()
-        wind_dir = current.getWind_dir()
+        dialog.dismiss()
+
+        val queryAPI: QueryAPI by viewModels { QueryAPI.Factory }
+        queryAPI.listQueryState.value.currState = current
+        queryAPI.listQueryState.value.forcState = forc
+
+        val compose_view = ComposeView(this)
+        setContent{
+            val viewmodel = viewModel<QueryAPI>()
+            setComposableContent(viewmodel, compose_view, this)
+        }
     }
 
     fun feed_failure(e: Exception?) {
+        dialog.dismiss()
         Toast.makeText(this, "Ooops... " + e?.message, Toast.LENGTH_LONG)
-            .show()
+        .show()
     }
 }
 
