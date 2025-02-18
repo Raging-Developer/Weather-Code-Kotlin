@@ -135,7 +135,7 @@ class MainActivity : AppCompatActivity() {
         item.itemId
         when (item.itemId) {
             R.id.aboutBox -> {
-                val a = Intent("com.app.new_weather.ABOUT")
+                val a = Intent(this, About::class.java)
                 a.putExtra("title", "Your weather, sort of")
                 a.putExtra(
                     "body",
