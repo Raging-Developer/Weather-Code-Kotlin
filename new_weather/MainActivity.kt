@@ -5,37 +5,34 @@ import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.Manifest.permission.ACCESS_NETWORK_STATE
 import android.Manifest.permission.INTERNET
 import android.annotation.SuppressLint
+import android.app.AlertDialog
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.Location
 import android.os.Build
 import android.os.Bundle
 import android.os.Looper
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.Toast
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
+import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import com.app.new_weather.data.Current
-import com.app.new_weather.data.Forecast
+import androidx.compose.ui.platform.ComposeView
 import com.app.new_weather.GetLocation.Companion.callback
 import com.app.new_weather.GetLocation.Companion.fusedClient
 import com.app.new_weather.GetLocation.Companion.locRequest
-import com.app.new_weather.LatLong.Companion.astro
-import com.app.new_weather.LatLong.Companion.chill
-import com.app.new_weather.LatLong.Companion.cond
-import com.app.new_weather.LatLong.Companion.cond_text
-import com.app.new_weather.LatLong.Companion.forecast_day
-import com.app.new_weather.LatLong.Companion.icon
+import com.app.new_weather.LatLong.Companion.api_location
 import com.app.new_weather.LatLong.Companion.latitude
 import com.app.new_weather.LatLong.Companion.longitude
-import com.app.new_weather.LatLong.Companion.temp
-import com.app.new_weather.LatLong.Companion.wind_dir
-import com.app.new_weather.LatLong.Companion.wind_mph
+import com.app.new_weather.data.Current
+import com.app.new_weather.data.Forecast
 import com.app.new_weather.ui.theme.New_WeatherTheme
-import com.google.android.gms.location.LocationServices
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
     private val REQ_CODE = 111
     private lateinit var dialog: AlertDialog
 
@@ -53,6 +50,11 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.main_activity)
+
+        setSupportActionBar(findViewById(R.id.my_toolbar))
+        supportActionBar
+
 
         //Here be your permissions request, everybody else gets suppressed.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -86,18 +88,9 @@ class MainActivity : ComponentActivity() {
 
                     use_lat_and_long(this)
                     getJsonFromAPI(api_location, this)
-
-                    //Cannot be debuged, which is great, apparently
-                    setContent {
-                        New_WeatherTheme {
-                            Surface(
-                                modifier = Modifier.fillMaxSize(),
-                                color = MaterialTheme.colorScheme.background
-                            ) { }
-                        }
-                    }
                 }
             }
+
     }
 
     @SuppressLint("MissingPermission")
@@ -122,9 +115,42 @@ class MainActivity : ComponentActivity() {
         lQueryState.forcState = forc
 
         val compose_view = ComposeView(this)
-        setContent{
+        findViewById<ComposeView>(R.id.compose_view).setContent{
+            New_WeatherTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) { }
+            }
             setComposableContent(lQueryState, compose_view, this)
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.aboutmenu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        item.itemId
+        when (item.itemId) {
+            R.id.aboutBox -> {
+                val a = Intent("com.app.new_weather.ABOUT")
+                a.putExtra("title", "Your weather, sort of")
+                a.putExtra(
+                    "body",
+                    "The weather where you are, with some graphics from http://vclouds.deviantart,"
+                            + "the responses are from weatherapi.com (Which is only three days, including today)\n"
+                            + "\nThis is just a test peice that takes your location from the gps and uses it to "
+                            + "query the weather api. Rotating your device will cause it to reload.\n"
+                )
+                startActivity(a)
+            }
+            else -> {
+                super.onOptionsItemSelected(item)
+            }
+        }
+        return false
     }
 
     fun feed_failure(e: Exception?) {
@@ -133,5 +159,3 @@ class MainActivity : ComponentActivity() {
         .show()
     }
 }
-
-
