@@ -43,7 +43,7 @@ fun setComposableContent(lQueryState: ForcUIState, composeView: ComposeView, con
 
 @Composable
 fun BackGroundImage(lQueryState: ForcUIState, context: MainActivity) {
-    val backImage = painterResource(id = R.drawable.night_time)
+    val backImage = painterResource(R.drawable.night_time)
 
     Box(
         contentAlignment = Alignment.TopCenter)
@@ -74,12 +74,9 @@ fun WeatherLayout(lQueryState: ForcUIState, context: MainActivity, modifier: Mod
         condIcon = condString.substring(0, 3)
     }
 
-    //Dynamic value for resourceId so, according to Gemini, I have to use this.
-    // This is the only way, so igmore the strikethrough.
-    val iconId = context
-        .resources
-        .getIdentifier("icon_$condIcon", "drawable", context.packageName)
-    val iconImage = painterResource(id = iconId)
+    //Getting dynamic value for resourceId is, according to Gemini, getIdentifier.
+    // Which is not correct, this is the non-gemini version. Ugly but it works.
+    val iconImage = painterResource(R.drawable::class.java.getField("icon_$condIcon").getInt(null))
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
