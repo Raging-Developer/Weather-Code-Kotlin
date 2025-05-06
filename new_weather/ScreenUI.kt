@@ -8,7 +8,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -26,23 +31,23 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.app.new_weather.LatLong.Companion.place
+import com.app.new_weather.LatLong.Companion.post_code
 import com.app.new_weather.data.Current
 import com.app.new_weather.data.ForcUIState
 import com.app.new_weather.data.Forecast
 import com.app.new_weather.ui.theme.New_WeatherTheme
-import com.example.new_weather.R
 import java.text.SimpleDateFormat
 
 @Composable
-fun setComposableContent(lQueryState: ForcUIState, composeView: ComposeView, context: MainActivity){
-    composeView.apply {
+fun setComposableContent(lQueryState: ForcUIState, composeView: ComposeView){
+      composeView.apply {
         setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-        BackGroundImage(lQueryState, context)
+          BackGroundImage(lQueryState)
     }
 }
 
 @Composable
-fun BackGroundImage(lQueryState: ForcUIState, context: MainActivity) {
+fun BackGroundImage(lQueryState: ForcUIState) {
     val backImage = painterResource(R.drawable.night_time)
 
     Box(
@@ -54,33 +59,33 @@ fun BackGroundImage(lQueryState: ForcUIState, context: MainActivity) {
             contentScale = ContentScale.FillBounds,
             modifier = Modifier.fillMaxSize()
         )
-        WeatherLayout(lQueryState, context)
+        WeatherLayout(lQueryState)
     }
 }
 
 @Composable
-fun WeatherLayout(lQueryState: ForcUIState, context: MainActivity, modifier: Modifier = Modifier) {
+fun WeatherLayout(lQueryState: ForcUIState, modifier: Modifier = Modifier) {
     val lForcState = lQueryState.forcState
     val lCurrState = lQueryState.currState
-    var condIcon = lCurrState.getCondition()?.getIcon().toString()
-
+    var condIcon = lCurrState.condition?.getIcon()
     var condString: String
 
-    if (lCurrState.getCondition()?.getIcon() == null) {
+    if (lCurrState.condition?.getIcon() == null) {
         condIcon = "na"
     }
     else {
-        condString = condIcon.substring(condIcon.length - 7)
+        condString = condIcon!!.substring(condIcon.length - 7)
         condIcon = condString.substring(0, 3)
     }
-
-    //Getting dynamic value for resourceId is, according to Gemini, getIdentifier.
-    // Which is not correct, this is the non-gemini version. Ugly but it works.
+    //This is ugly, but it avoids getIdentifier
     val iconImage = painterResource(R.drawable::class.java.getField("icon_$condIcon").getInt(null))
+
+
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier)
+        modifier = modifier.padding(top = 60.dp) //Make room for the toolbar
+                .verticalScroll(rememberScrollState()). height(625.dp))
     {
         Image(
             painter = iconImage,
@@ -88,13 +93,13 @@ fun WeatherLayout(lQueryState: ForcUIState, context: MainActivity, modifier: Mod
             contentScale = ContentScale.Fit)
 
         //The only thing I want scrolling is fore_cast
-
         Temp_today(lCurrState)
         Condition_text(lCurrState)
         Location_text()
         Fore_cast(lForcState)
         SunRiseSet(lForcState)
-        
+        MoonPhase(lForcState)
+
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -105,7 +110,7 @@ fun WeatherLayout(lQueryState: ForcUIState, context: MainActivity, modifier: Mod
 
 @Composable
 fun Temp_today(lCurrState: Current, modifier: Modifier = Modifier) {
-    val temp = lCurrState.getTemp_c()
+    val temp = lCurrState.temp_c
 
     Box {
         Row(
@@ -117,7 +122,7 @@ fun Temp_today(lCurrState: Current, modifier: Modifier = Modifier) {
                 lineHeight = 20.sp,
                 textAlign = TextAlign.Center,
                 modifier = modifier.padding(0.dp),
-                color = Color.Cyan)
+                color = Color.LightGray)
             Chill_factor(lCurrState)
         }
     }
@@ -125,24 +130,24 @@ fun Temp_today(lCurrState: Current, modifier: Modifier = Modifier) {
 
 @Composable
 fun Chill_factor(lCurrState: Current, modifier: Modifier = Modifier) {
-    val chillTemp = lCurrState.getFeelslike_c()
-    val wind_mph = lCurrState.getWind_mph()
-    val wind_dir = lCurrState.getWind_dir()
+    val chillTemp = lCurrState.feelslike_c
+    val wind_mph = lCurrState.wind_mph
+    val wind_dir = lCurrState.wind_dir
 
     val chill =
-        "(Which feels like $chillTemp\u00B0 \nin as $wind_mph mph wind\ncoming from $wind_dir)"
+        "(Which feels like $chillTemp\u00B0 \nin a $wind_mph mph wind\ncoming from $wind_dir)"
     Text(
         text = chill,
-        fontSize = 10.sp,
+        fontSize = 12.sp,
         lineHeight = 12.sp,
         textAlign = TextAlign.Center,
-        modifier = modifier.padding(start = 10.dp),
-        color = Color.Cyan)
+        modifier = modifier.padding(start = 12.dp),
+        color = Color.LightGray)
 }
 
 @Composable
 fun Condition_text(lCurrState: Current, modifier: Modifier = Modifier) {
-    val cond_text = lCurrState.getCondition()?.getText()
+    val cond_text = lCurrState.condition?.text
 
     val condition = "The weather today is $cond_text"
     Text(
@@ -151,7 +156,7 @@ fun Condition_text(lCurrState: Current, modifier: Modifier = Modifier) {
         fontSize = 20.sp,
         lineHeight = 20.sp,
         modifier = modifier.padding(0.dp),
-        color = Color.Cyan)
+        color = Color.LightGray)
 }
 
 @Composable
@@ -161,10 +166,10 @@ fun Location_text(modifier: Modifier = Modifier) {
     Text(
         text = loc,
         fontSize = 20.sp,
-        lineHeight = 21.sp,
+        lineHeight = 20.sp,
         textAlign = TextAlign.Center,
         modifier = modifier.padding(0.dp),
-        color = Color.Cyan)
+        color = Color.LightGray)
 }
 
 @Composable
@@ -173,11 +178,11 @@ fun Fore_cast(lForcState: Forecast) {
     var tomoz_text = ""
     var tomoz_date = ""
     var fore_array = mutableListOf<String>()
-    val forecast_day = lForcState.getForecast_day()
+    val forecast_day = lForcState.forecast_day
 
     for (i in 0 until forecast_day.length()) {
         val o = forecast_day.getJSONObject(i)
-        val oday = SimpleDateFormat("EEEE").format(o.getString("date_epoch").toLong() * 1000)
+        val oday = SimpleDateFormat("EEEE, d MMM").format(o.getString("date_epoch").toLong() * 1000)
         val odate = o.getString("date")
         val otext = o.getJSONObject("day").getJSONObject("condition").getString("text")
 
@@ -187,20 +192,22 @@ fun Fore_cast(lForcState: Forecast) {
             tomoz_date = odate
         }
 
-        fore_array.add("$oday $odate $otext")
+        fore_array.add("$oday $otext")
     }
 
     Box {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Tomorrow(tomoz_text, tomoz_day, tomoz_date)
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Tomorrow(tomoz_text, tomoz_day)
+            LazyColumn(horizontalAlignment = Alignment.CenterHorizontally) {
                 for (day in fore_array) {
-                    Text(
-                        text = day,
-                        color = Color.Cyan,
-                        fontSize = 12.sp,
-                        overflow = TextOverflow.Visible
-                    )
+                    item {
+                        Text(
+                            text = day,
+                            color = Color.LightGray,
+                            fontSize = 12.sp,
+                            overflow = TextOverflow.Visible
+                        )
+                    }
                 }
             }
         }
@@ -211,56 +218,99 @@ fun Fore_cast(lForcState: Forecast) {
 fun Tomorrow(
     tomoz_text: String,
     tomoz_day: String,
-    tomoz_date: String,
     modifier: Modifier = Modifier) {
 
-    val tomorrow = "Tomorrow $tomoz_day $tomoz_date will be\n $tomoz_text"
+    val tomorrow = "Tomorrow $tomoz_day will be\n $tomoz_text"
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
             text = tomorrow,
-            fontSize = 20.sp,
-            lineHeight = 20.sp,
+            fontSize = 15.sp,
+            lineHeight = 15.sp,
             textAlign = TextAlign.Center,
             modifier = modifier.padding(10.dp),
-            color = Color.Cyan)
+            color = Color.LightGray)
     }
 }
 
 @Composable
 fun SunRiseSet(lForcState: Forecast, modifier: Modifier = Modifier) {
-    val sunrise = lForcState.getAstro()?.getSunrise()
-    val sunset = lForcState.getAstro()?.getSunset()
+    val sunrise = lForcState.astro?.sunrise
+    val sunset = lForcState.astro?.sunset
 
     Column(horizontalAlignment = Alignment.CenterHorizontally)
     {
         Text(
-            text = "Sunrise is at $sunrise",
-            fontSize = 10.sp,
-            color = Color.Cyan,
+            text = "Sunrise is at $sunrise and sunset is at $sunset",
+            fontSize = 12.sp,
+            lineHeight = 12.sp,
+            color = Color.LightGray,
             modifier = modifier.padding(top = 10.dp))
+    }
+}
+
+@Composable
+fun MoonPhase(lForcState: Forecast, modifier: Modifier = Modifier){
+
+    var moonIcon = when (lForcState.astro?.moonphase) {
+        "First Quarter" -> "firstquarter"
+        "Full Moon" -> "fullmoon"
+        "Last Quarter" -> "lastquarter"
+        "New Moon" -> "newmoon"
+        "Waning Crescent" -> "waningcrescent"
+        "Waning Gibbous" -> "waninggibbous"
+        "Waxing Crescent" -> "waxingcrescent"
+        "Waxing Gibbous" -> "waxinggibbous"
+        else -> {
+            "fullmoon"
+        }
+    }
+
+    Column(horizontalAlignment = Alignment.CenterHorizontally)
+    {
         Text(
-            text = "and sunset is at $sunset",
-            fontSize = 10.sp,
-            color = Color.Cyan)
+            text = "The phase of the moon is ${lForcState.astro?.moonphase}",
+            fontSize = 12.sp,
+            lineHeight = 12.sp,
+            color = Color.LightGray,
+            modifier = modifier.padding(top = 10.dp))
+        Image(
+            painter = painterResource(R.drawable::class.java.getField("$moonIcon").getInt(null)),
+            contentDescription = null,
+            modifier = Modifier.size(125.dp)
+        )
+        Text(
+            text = "With the moon rising at ${lForcState.astro?.moonrise} " +
+                    "and setting at ${lForcState.astro?.moonset}",
+            fontSize = 12.sp,
+            lineHeight = 12.sp,
+            color = Color.LightGray
+
+        )
     }
 }
 
 @Composable
 fun ApiLinkButton() {
     val context = LocalContext.current
-    val icon = painterResource(id = R.drawable.weatherapi_logo)
+    val icon = painterResource(R.drawable.weatherapi_logo)
     val i = Intent()
 
     i.setAction(Intent.ACTION_VIEW)
     i.addCategory(Intent.CATEGORY_BROWSABLE)
-    i.setData(Uri.parse("https://www.weatherapi.com/"))
+    i.setData(Uri.parse("https://www.weatherapi.com/weather/q/$post_code"))
 
     TextButton(
         onClick = { context.startActivity(i) },
         content = {
             Image(
                 painter = icon,
-                contentDescription = null)
+                contentDescription = "Link",
+                contentScale = ContentScale.Fit)
         })
 }
+
+
+
+
+
