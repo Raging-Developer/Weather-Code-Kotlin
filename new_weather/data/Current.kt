@@ -3,20 +3,20 @@ package com.app.new_weather.data
 import org.json.JSONObject
 
 class Current {
-    private var condition: Condition? = null
-    private var last_updated_epoch: Long = 0
-    private var last_updated: String? = null
-    private var is_day: String? = null
-    private var temp_c: String = ""
-    private var wind_mph: String = ""
-    private var wind_dir: String = ""
-    private var pressure_mb: String? = null
-    private var precip_in: String? = null
-    private var humidty: String? = null
-    private var feelslike_c: String = ""
-    private var vis_miles: String? = null
-    private var UV: String? = null
-    private var gust_mph: String? = null
+    internal var condition: Condition? = null
+    internal var last_updated_epoch: Long = 0
+    internal var last_updated: String? = null
+    internal var is_day: String? = null
+    internal var temp_c: String = ""
+    internal var wind_mph: String = ""
+    internal var wind_dir: String = ""
+    internal var pressure_mb: String? = null
+    internal var precip_in: String? = null
+    internal var humidty: String? = null
+    internal var feelslike_c: String = ""
+    internal var vis_miles: String? = null
+    internal var UV: String? = null
+    internal var gust_mph: String? = null
 
     fun getCondition(): Condition? {
         return condition
