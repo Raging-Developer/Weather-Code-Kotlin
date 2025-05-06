@@ -3,14 +3,14 @@ package com.app.new_weather.data
 import org.json.JSONObject
 
 class Astronomy {
-    private var sunrise: String? = null
-    private var sunset: String? = null
-    private var moonrise: String? = null
-    private var moonset: String? = null
-    private var moonphase: String? = null
-    private var moon_illumination: String? = null
-    private var is_moon_up = 0
-    private var is_sun_up = 0
+    internal var sunrise: String? = null
+    internal var sunset: String? = null
+    internal var moonrise: String? = null
+    internal var moonset: String? = null
+    internal var moonphase: String? = null
+    internal var moon_illumination: String? = null
+    internal var is_moon_up = 0
+    internal var is_sun_up = 0
 
     fun getSunrise(): String? {
         return sunrise
