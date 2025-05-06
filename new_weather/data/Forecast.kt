@@ -5,8 +5,8 @@ import org.json.JSONException
 import org.json.JSONObject
 
 class Forecast {
-    private var forecast_day: JSONArray = JSONArray()
-    private var astro: Astronomy? = null
+    internal var forecast_day: JSONArray = JSONArray()
+    internal var astro: Astronomy? = null
     private var date: String? = null
 
     fun getForecast_day(): JSONArray {
