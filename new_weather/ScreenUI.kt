@@ -176,25 +176,21 @@ fun Location_text(modifier: Modifier = Modifier) {
 fun Fore_cast(lForcState: Forecast) {
     var tomoz_day = ""
     var tomoz_text = ""
-    var tomoz_date = ""
     var fore_array = mutableListOf<String>()
     val forecast_day = lForcState.forecast_day
 
     for (i in 0 until forecast_day.length()) {
         val o = forecast_day.getJSONObject(i)
         val oday = SimpleDateFormat("EEEE, d MMM").format(o.getString("date_epoch").toLong() * 1000)
-        val odate = o.getString("date")
         val otext = o.getJSONObject("day").getJSONObject("condition").getString("text")
 
         if (i == 1) {
             tomoz_text = otext
             tomoz_day = oday
-            tomoz_date = odate
         }
-
         fore_array.add("$oday $otext")
     }
-
+    
     Box {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Tomorrow(tomoz_text, tomoz_day)
