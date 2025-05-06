@@ -10,6 +10,7 @@ import com.app.new_weather.GetLocation.Companion.locRequest
 import com.app.new_weather.LatLong.Companion.latitude
 import com.app.new_weather.LatLong.Companion.longitude
 import com.app.new_weather.LatLong.Companion.place
+import com.app.new_weather.LatLong.Companion.post_code
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -72,8 +73,7 @@ fun get_location(context: Context) {
 fun use_lat_and_long(context: Context) {
     var city: String?
     var town: String?
-    var street: String?
-    var post_code: String?
+    var street: String?   
     val geo = Geocoder(context, Locale.getDefault())
 
     geo.getFromLocation(latitude, longitude, 1)
