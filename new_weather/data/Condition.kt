@@ -3,9 +3,9 @@ package com.app.new_weather.data
 import org.json.JSONObject
 
 class Condition {
-    private var text: String? = null
-    private var icon: String? = null
-    private var code: String? = null
+    internal var text: String? = null
+    internal var icon: String? = null
+    internal var code: String? = null
 
     fun getText(): String? {
         return text
