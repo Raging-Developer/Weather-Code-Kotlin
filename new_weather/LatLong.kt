@@ -7,6 +7,7 @@ data class LatLong (var place: String)
         //Also, api_location cannot be empty on the first run through. No weather for the north pole 0,0
 
         var place: String? = ""
+        var post_code: String? = ""
         var latitude: Double = 40.7127
         var longitude: Double = -74.0059
         var api_location = "${latitude},${longitude}"
