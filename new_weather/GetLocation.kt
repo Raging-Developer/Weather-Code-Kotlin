@@ -70,6 +70,22 @@ fun get_location(context: Context) {
         }
 }
 
+@SuppressLint("MissingPermission")
+fun startLocationUpates(context: Context) {
+    fusedClient.requestLocationUpdates(locRequest, callback, Looper.getMainLooper())
+    fusedClient.lastLocation
+        .addOnSuccessListener { l: Location? ->
+            if (l != null) {
+                latitude = l.latitude
+                longitude = l.longitude
+                api_location = "${latitude},${longitude}"
+
+                use_lat_and_long(context)
+                getJsonFromAPI(api_location, context as MainActivity)
+            }
+        }
+}
+
 fun use_lat_and_long(context: Context) {
     var city: String?
     var town: String?
