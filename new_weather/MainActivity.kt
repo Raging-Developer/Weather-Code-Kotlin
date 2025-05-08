@@ -77,20 +77,7 @@ class MainActivity : AppCompatActivity() {
         dialog.show()
 
         get_location(this)
-
-        fusedClient.requestLocationUpdates(locRequest, callback, Looper.getMainLooper())
-        fusedClient.lastLocation
-            .addOnSuccessListener { l: Location? ->
-                if (l != null) {
-                    latitude = l.latitude
-                    longitude = l.longitude
-                    api_location = "${latitude},${longitude}"
-
-                    use_lat_and_long(this)
-                    getJsonFromAPI(api_location, this)
-                }
-            }
-
+        startLocationUpates()
     }
 
     @SuppressLint("MissingPermission")
@@ -101,6 +88,10 @@ class MainActivity : AppCompatActivity() {
             if (l != null) {
                 latitude = l.latitude
                 longitude = l.longitude
+                api_location = "${latitude},${longitude}"
+
+                use_lat_and_long(this)
+                getJsonFromAPI(api_location, this)
             }
         }
     }
