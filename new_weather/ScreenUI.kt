@@ -67,7 +67,7 @@ fun BackGroundImage(lQueryState: ForcUIState) {
 fun WeatherLayout(lQueryState: ForcUIState, modifier: Modifier = Modifier) {
     val lForcState = lQueryState.forcState
     val lCurrState = lQueryState.currState
-    var condIcon = lCurrState.condition?.getIcon()
+    var condIcon = lCurrState.condition?.icon
     var condString: String
 
     if (lCurrState.condition?.getIcon() == null) {
@@ -77,20 +77,18 @@ fun WeatherLayout(lQueryState: ForcUIState, modifier: Modifier = Modifier) {
         condString = condIcon!!.substring(condIcon.length - 7)
         condIcon = condString.substring(0, 3)
     }
-    //This is ugly, but it avoids getIdentifier
+    
     val iconImage = painterResource(R.drawable::class.java.getField("icon_$condIcon").getInt(null))
-
-
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier.padding(top = 60.dp) //Make room for the toolbar
-                .verticalScroll(rememberScrollState()). height(625.dp))
+                .verticalScroll(rememberScrollState()). height(700.dp))
     {
         Image(
             painter = iconImage,
             contentDescription = null,
-            contentScale = ContentScale.Fit)
+            modifier = Modifier.size(150.dp))
 
         //The only thing I want scrolling is fore_cast
         Temp_today(lCurrState)
@@ -103,7 +101,8 @@ fun WeatherLayout(lQueryState: ForcUIState, modifier: Modifier = Modifier) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f)) {}
+                .weight(1f)
+                .align(Alignment.End)) {}
         ApiLinkButton()
     }
 }
@@ -135,7 +134,7 @@ fun Chill_factor(lCurrState: Current, modifier: Modifier = Modifier) {
     val wind_dir = lCurrState.wind_dir
 
     val chill =
-        "(Which feels like $chillTemp\u00B0 \nin a $wind_mph mph wind\ncoming from $wind_dir)"
+        "(Which feels like $chillTemp\u00B0 \nin a $wind_dir $wind_mph mph wind)"
     Text(
         text = chill,
         fontSize = 12.sp,
@@ -147,9 +146,9 @@ fun Chill_factor(lCurrState: Current, modifier: Modifier = Modifier) {
 
 @Composable
 fun Condition_text(lCurrState: Current, modifier: Modifier = Modifier) {
-    val cond_text = lCurrState.condition?.text
-
-    val condition = "The weather today is $cond_text"
+    val pressure_mb = lCurrState.pressure_mb
+    val condition = "The weather today is ${lCurrState.condition?.text} at $pressure_mb mb"
+      
     Text(
         textAlign = TextAlign.Center,
         text = condition,
@@ -302,7 +301,7 @@ fun ApiLinkButton() {
             Image(
                 painter = icon,
                 contentDescription = "Link",
-                contentScale = ContentScale.Fit)
+                modifier = Modifier.size(60.dp))
         })
 }
 
