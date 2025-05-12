@@ -98,13 +98,17 @@ fun use_lat_and_long(context: Context) {
         town = address_info[0].subLocality
         street = address_info[0].thoroughfare
         post_code = address_info[0].postalCode
-        place = street
-        if (street == null) {
-            place = town
-            if (town == null) {
-                place = city
-                if (city == null) {
-                    place = post_code
+        place = "$number $street"
+
+        if (number == null) {
+            place = street
+            if (street == null) {
+                place = town
+                if (town == null) {
+                    place = city
+                    if (city == null) {
+                        place = post_code
+                    }
                 }
             }
         }
