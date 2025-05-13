@@ -246,8 +246,8 @@ fun SunRiseSet(lForcState: Forecast, modifier: Modifier = Modifier) {
 
 @Composable
 fun MoonPhase(lForcState: Forecast, modifier: Modifier = Modifier){
-
-    var moonIcon = when (lForcState.astro?.moonphase) {
+    val moonphase = lForcState.astro?.moonphase
+    var moonIcon = when (moonphase) {
         "First Quarter" -> "firstquarter"
         "Full Moon" -> "fullmoon"
         "Last Quarter" -> "lastquarter"
@@ -264,13 +264,13 @@ fun MoonPhase(lForcState: Forecast, modifier: Modifier = Modifier){
     Column(horizontalAlignment = Alignment.CenterHorizontally)
     {
         Text(
-            text = "The phase of the moon is ${lForcState.astro?.moonphase}",
+            text = "The phase of the moon is $moonphase",
             fontSize = 12.sp,
             lineHeight = 12.sp,
             color = Color.LightGray,
             modifier = modifier.padding(top = 10.dp))
         Image(
-            painter = painterResource(R.drawable::class.java.getField("$moonIcon").getInt(null)),
+            painter = painterResource(R.drawable::class.java.getField(moonIcon).getInt(null)),
             contentDescription = null,
             modifier = Modifier.size(125.dp)
         )
