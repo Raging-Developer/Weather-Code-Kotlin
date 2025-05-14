@@ -3,25 +3,15 @@ package com.app.new_weather.data
 import org.json.JSONObject
 
 class Condition {
-    internal var text: String? = null
-    internal var icon: String? = null
-    internal var code: String? = null
-
-    fun getText(): String? {
-        return text
-    }
-
-    fun getIcon(): String? {
-        return icon
-    }
-
-    fun getCode(): String? {
-        return code
+    companion object{
+        var condText: String? = null
+        var condIcon: String? = null
+        var condCode: String? = null
     }
 
     fun populate(data: JSONObject) {
-        text = data.optString("text")
-        icon = data.optString("icon")
-        code = data.optString("code")
+        condText = data.optString("text")
+        condIcon = data.optString("icon")
+        condCode = data.optString("code")
     }
 }
