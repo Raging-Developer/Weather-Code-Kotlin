@@ -99,22 +99,20 @@ class MainActivity : AppCompatActivity() {
     //Load up the viewModel using a Factory
     fun feed_success(current: Current, forc: Forecast) {
         dialog.dismiss()
-
-        val queryAPI: QueryAPI by viewModels { QueryAPI.Factory }
-        val lQueryState = queryAPI.listQueryState.value
-        lQueryState.currState = current
-        lQueryState.forcState = forc
-
+        
         val compose_view = ComposeView(this)
-        findViewById<ComposeView>(R.id.compose_view).setContent{
-            New_WeatherTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) { }
+        //Now the only call to setContent, via a findViewById which google doesn't mention
+        findViewById<ComposeView>(R.id.compose_view)
+            .setContent {
+                New_WeatherTheme {
+                    Surface(
+                        modifier = Modifier.fillMaxSize(),
+                        color = MaterialTheme.colorScheme.background
+                    ) {
+                        setComposableContent( compose_view)
+                    }
+                }
             }
-            setComposableContent(lQueryState, compose_view, this)
-        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
