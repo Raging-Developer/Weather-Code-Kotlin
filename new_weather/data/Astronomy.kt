@@ -3,45 +3,15 @@ package com.app.new_weather.data
 import org.json.JSONObject
 
 class Astronomy {
-    internal var sunrise: String? = null
-    internal var sunset: String? = null
-    internal var moonrise: String? = null
-    internal var moonset: String? = null
-    internal var moonphase: String? = null
-    internal var moon_illumination: String? = null
-    internal var is_moon_up = 0
-    internal var is_sun_up = 0
-
-    fun getSunrise(): String? {
-        return sunrise
-    }
-
-    fun getSunset(): String? {
-        return sunset
-    }
-
-    fun getMoonrise(): String? {
-        return moonrise
-    }
-
-    fun getMoonset(): String? {
-        return moonset
-    }
-
-    fun getMoonphase(): String? {
-        return moonphase
-    }
-
-    fun getMoon_illumination(): String? {
-        return moon_illumination
-    }
-
-    fun getIs_moon_up(): Int {
-        return is_moon_up
-    }
-
-    fun getIs_sun_up(): Int {
-        return is_sun_up
+    companion object{
+        var sunrise: String? = null
+        var sunset: String? = null
+        var moonrise: String? = null
+        var moonset: String? = null
+        var moonphase: String? = null
+        var moon_illumination: String? = null
+        var is_moon_up = 0
+        var is_sun_up = 0
     }
 
     fun populate(data: JSONObject) {
