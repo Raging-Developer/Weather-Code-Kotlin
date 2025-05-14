@@ -5,23 +5,16 @@ import org.json.JSONException
 import org.json.JSONObject
 
 class Forecast {
-    internal var forecast_day: JSONArray = JSONArray()
-    internal var astro: Astronomy? = null
-    private var date: String? = null
-
-    fun getForecast_day(): JSONArray {
-        return forecast_day
-    }
-
-    fun getAstro(): Astronomy? {
-        return astro
+    companion object{
+        var forecast_day: JSONArray = JSONArray()
+        var astro: Astronomy? = Astronomy()
+        var date: String? = null
     }
 
     @Throws(JSONException::class)
     fun populate(data: JSONObject) {
         forecast_day = data.getJSONArray("forecastday")
         date = forecast_day?.getJSONObject(1)?.getString("date")
-        astro = Astronomy()
-        astro!!.populate(forecast_day!!.getJSONObject(0).optJSONObject("astro"))
+        astro!!.populate(forecast_day!!.getJSONObject(0).optJSONObject("astro")!!)
     }
 }
