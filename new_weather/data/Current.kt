@@ -3,68 +3,25 @@ package com.app.new_weather.data
 import org.json.JSONObject
 
 class Current {
-    internal var condition: Condition? = null
-    internal var last_updated_epoch: Long = 0
-    internal var last_updated: String? = null
-    internal var is_day: String? = null
-    internal var temp_c: String = ""
-    internal var wind_mph: String = ""
-    internal var wind_dir: String = ""
-    internal var pressure_mb: String? = null
-    internal var precip_in: String? = null
-    internal var humidty: String? = null
-    internal var feelslike_c: String = ""
-    internal var vis_miles: String? = null
-    internal var UV: String? = null
-    internal var gust_mph: String? = null
-
-    fun getCondition(): Condition? {
-        return condition
-    }
-
-    fun getLast_updated_epoch(): Long {
-        return last_updated_epoch
-    }
-    fun getLast_updated(): String? {
-        return last_updated
-    }
-    fun getIs_day(): String? {
-        return is_day
-    }
-    fun getTemp_c(): String? {
-        return temp_c
-    }
-    fun getWind_mph(): String {
-        return wind_mph
-    }
-    fun getWind_dir(): String {
-        return wind_dir
-    }
-    fun getPressure_mb(): String? {
-        return pressure_mb
-    }
-    fun getPrecip_in(): String? {
-        return precip_in
-    }
-    fun getHumidty(): String? {
-        return humidty
-    }
-    fun getFeelslike_c(): String? {
-        return feelslike_c
-    }
-    fun getVis_miles(): String? {
-        return vis_miles
-    }
-    fun getUV(): String? {
-        return UV
-    }
-    fun getGust_mph(): String? {
-        return gust_mph
+    companion object{
+        var condition: Condition? = Condition()
+        var last_updated_epoch: Long = 0
+        var last_updated: String? = null
+        var is_day: String? = null
+        var temp_c: String = ""
+        var wind_mph: String = ""
+        var wind_dir: String = ""
+        var pressure_mb: String? = null
+        var precip_in: String? = null
+        var humidty: String? = null
+        var feelslike_c: String = ""
+        var vis_miles: String? = null
+        var UV: String? = null
+        var gust_mph: String? = null
     }
 
     @Throws(Exception::class)
     fun populate(data: JSONObject) {
-        condition = Condition()
         condition!!.populate(data.getJSONObject("condition"))
         last_updated_epoch = data.getLong("last_updated_epoch")
         last_updated = data.optString("last_updated")
