@@ -100,7 +100,7 @@ class MainActivity : AppCompatActivity() {
         dialog.dismiss()
         
         val compose_view = ComposeView(this)
-        //Now the only call to setContent, via a findViewById which google doesn't mention
+        //Now the only call to setContent, via a findViewById which goggle doesn't mention
         findViewById<ComposeView>(R.id.compose_view)
             .setContent {
                 New_WeatherTheme {
