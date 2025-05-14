@@ -92,11 +92,12 @@ fun use_lat_and_long(context: Context) {
     var street: String?   
     val geo = Geocoder(context, Locale.getDefault())
 
-    geo.getFromLocation(latitude, longitude, 1)
+    geo.getFromLocation(latitude, longitude, 1, Geocoder.GeocodeListener
     { address_info ->
         city = address_info[0].locality
         town = address_info[0].subLocality
         street = address_info[0].thoroughfare
+        number = address_info[0].subThoroughfare
         post_code = address_info[0].postalCode
         place = "$number $street"
 
@@ -112,6 +113,6 @@ fun use_lat_and_long(context: Context) {
                 }
             }
         }
-    }
+    })
 }
 
