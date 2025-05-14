@@ -95,8 +95,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-
-    //Load up the viewModel using a Factory
+    
     fun feed_success(current: Current, forc: Forecast) {
         dialog.dismiss()
         
