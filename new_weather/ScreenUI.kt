@@ -32,9 +32,22 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.app.new_weather.LatLong.Companion.place
 import com.app.new_weather.LatLong.Companion.post_code
+import com.app.new_weather.data.Astronomy.Companion.moonphase
+import com.app.new_weather.data.Astronomy.Companion.moonrise
+import com.app.new_weather.data.Astronomy.Companion.moonset
+import com.app.new_weather.data.Astronomy.Companion.sunrise
+import com.app.new_weather.data.Astronomy.Companion.sunset
+import com.app.new_weather.data.Condition.Companion.condIcon
+import com.app.new_weather.data.Condition.Companion.condText
 import com.app.new_weather.data.Current
+import com.app.new_weather.data.Current.Companion.feelslike_c
+import com.app.new_weather.data.Current.Companion.pressure_mb
+import com.app.new_weather.data.Current.Companion.temp_c
+import com.app.new_weather.data.Current.Companion.wind_dir
+import com.app.new_weather.data.Current.Companion.wind_mph
 import com.app.new_weather.data.ForcUIState
 import com.app.new_weather.data.Forecast
+import com.app.new_weather.data.Forecast.Companion.forecast_day
 import com.app.new_weather.ui.theme.New_WeatherTheme
 import java.text.SimpleDateFormat
 
@@ -108,15 +121,14 @@ fun WeatherLayout(lQueryState: ForcUIState, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun Temp_today(lCurrState: Current, modifier: Modifier = Modifier) {
-    val temp = lCurrState.temp_c
+fun Temp_today(lCurrState: Current, modifier: Modifier = Modifier) {    
 
     Box {
         Row(
             modifier = Modifier)
         {
             Text(
-                text = "$temp\u00B0",
+                text = "$temp_c\u00B0",
                 fontSize = 20.sp,
                 lineHeight = 20.sp,
                 textAlign = TextAlign.Center,
@@ -129,12 +141,8 @@ fun Temp_today(lCurrState: Current, modifier: Modifier = Modifier) {
 
 @Composable
 fun Chill_factor(lCurrState: Current, modifier: Modifier = Modifier) {
-    val chillTemp = lCurrState.feelslike_c
-    val wind_mph = lCurrState.wind_mph
-    val wind_dir = lCurrState.wind_dir
-
     val chill =
-        "(Which feels like $chillTemp\u00B0 \nin a $wind_dir $wind_mph mph wind)"
+        "(Which feels like $feelsLike_c\u00B0 \nin a $wind_dir $wind_mph mph wind)"
     Text(
         text = chill,
         fontSize = 12.sp,
@@ -145,9 +153,8 @@ fun Chill_factor(lCurrState: Current, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun Condition_text(lCurrState: Current, modifier: Modifier = Modifier) {
-    val pressure_mb = lCurrState.pressure_mb
-    val condition = "The weather today is ${lCurrState.condition?.text} at $pressure_mb mb"
+fun Condition_text(lCurrState: Current, modifier: Modifier = Modifier) {    
+    val condition = "The weather today is $condText at $pressure_mb mb"
       
     Text(
         textAlign = TextAlign.Center,
@@ -230,9 +237,7 @@ fun Tomorrow(
 
 @Composable
 fun SunRiseSet(lForcState: Forecast, modifier: Modifier = Modifier) {
-    val sunrise = lForcState.astro?.sunrise
-    val sunset = lForcState.astro?.sunset
-
+ 
     Column(horizontalAlignment = Alignment.CenterHorizontally)
     {
         Text(
@@ -246,7 +251,7 @@ fun SunRiseSet(lForcState: Forecast, modifier: Modifier = Modifier) {
 
 @Composable
 fun MoonPhase(lForcState: Forecast, modifier: Modifier = Modifier){
-    val moonphase = lForcState.astro?.moonphase
+
     var moonIcon = when (moonphase) {
         "First Quarter" -> "firstquarter"
         "Full Moon" -> "fullmoon"
