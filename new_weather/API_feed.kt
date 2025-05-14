@@ -49,16 +49,12 @@ fun getJsonFromAPI(location: String, weather: MainActivity) {
 
             try {
                 if (result.isNotEmpty()) {
-                    val data = JSONObject(result.toString())
+                     val data = JSONObject(result.toString())
                     //The feed does not have a single root but forecast, current and location.
                     //And we don't need location.
-                    val current = Current()
-                    current.populate(data.optJSONObject("current"))
-                    val forc = Forecast()
-                    forc.populate(data.getJSONObject("forecast"))
-
-                    //current is today's weather, forc is three days hence including today (?)
-                    weak_weather?.feed_success(current, forc)
+                    Current().populate(data.optJSONObject("current")!!)
+                    Forecast().populate(data.getJSONObject("forecast"))
+                    weak_weather?.feed_success()
                 }
             }
             catch (e: Exception) {
