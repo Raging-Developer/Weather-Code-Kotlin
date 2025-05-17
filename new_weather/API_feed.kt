@@ -21,7 +21,7 @@ fun getJsonFromAPI(location: String, weather: MainActivity) {
         var error: Exception? = null
         val client_id = ""
         val api_url = "https://api.weatherapi.com/v1/"
-        var weak_ref: WeakReference<MainActivity> = WeakReference<MainActivity>(weather)
+        val weak_weather = WeakReference<MainActivity>(weather).get()
 
         try {
             val url = URL(api_url + "forecast.json?key=" + client_id + "&q=" + location + "&days=5")
@@ -40,8 +40,7 @@ fun getJsonFromAPI(location: String, weather: MainActivity) {
             error = e
         }
 
-        handler.postDelayed( { //This be your onPostExecute, which used to be a seperate task
-            val weak_weather = weak_ref.get()
+        handler.postDelayed( { //This be your onPostExecute, which used to be a seperate task            
 
             if (error != null){
                 weak_weather?.feed_failure(error)
