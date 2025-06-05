@@ -193,20 +193,16 @@ fun Fore_cast() {
         fore_array.add("$oday $otext")
     }
 
-    Box {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Tomorrow(tomoz_text, tomoz_day)
-            LazyColumn(horizontalAlignment = Alignment.CenterHorizontally) {
-                for (day in fore_array) {
-                    item {
-                        Text(
-                            text = day,
-                            color = Color.LightGray,
-                            fontSize = 12.sp,
-                            lineHeight = 12.sp,
-                            overflow = TextOverflow.Visible)
-                    }
-                }
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Tomorrow(tomoz_text, tomoz_day)
+        LazyColumn(horizontalAlignment = Alignment.CenterHorizontally) {
+            items(fore_array.count()){
+                index ->
+                Text(text = fore_array[index],
+                    color = Color.LightGray,
+                    fontSize = 12.sp,
+                    lineHeight = 12.sp,
+                    overflow = TextOverflow.Visible)
             }
         }
     }
