@@ -60,7 +60,6 @@ fun setComposableContent(composeView: ComposeView){
 @Composable
 fun BackGroundImage() {
     val backImage = painterResource(R.drawable.night_time)
-    var itemCount by remember { mutableIntStateOf(15) }
     var scrollState = rememberScrollState()
     var isRefreshing by remember{ mutableStateOf(false) }
     val state = rememberPullToRefreshState()
@@ -69,7 +68,6 @@ fun BackGroundImage() {
         isRefreshing = true
         coScope.launch {
             delay(1000)
-            itemCount += 5
             isRefreshing = false
         }
     }
