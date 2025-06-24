@@ -68,7 +68,7 @@ fun BackGroundImage() {
     val onRefresh: () -> Unit = {
         isRefreshing = true
         coScope.launch {
-            delay(5000)
+            delay(1000)
             itemCount += 5
             isRefreshing = false
         }
@@ -80,15 +80,7 @@ fun BackGroundImage() {
         contentScale = ContentScale.FillBounds,
         modifier = Modifier.fillMaxSize()
     )
-
-    LaunchedEffect(isRefreshing) {
-        if (isRefreshing) {
-            delay(1000)
-            itemCount += 5
-            isRefreshing = false
-        }
-    }
-
+    
     PullToRefreshBox(
         isRefreshing = isRefreshing,
         onRefresh = onRefresh,
