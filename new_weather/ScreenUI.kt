@@ -56,23 +56,51 @@ fun setComposableContent(composeView: ComposeView){
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BackGroundImage() {
     val backImage = painterResource(R.drawable.night_time)
+    var itemCount by remember { mutableIntStateOf(15) }
     var scrollState = rememberScrollState()
+    var isRefreshing by remember{ mutableStateOf(false) }
+    val state = rememberPullToRefreshState()
+    val coScope = rememberCoroutineScope()
+    val onRefresh: () -> Unit = {
+        isRefreshing = true
+        coScope.launch {
+            delay(5000)
+            itemCount += 5
+            isRefreshing = false
+        }
+    }
 
-    Box(Modifier
+    Image(
+        painter = backImage,
+        contentDescription = null,
+        contentScale = ContentScale.FillBounds,
+        modifier = Modifier.fillMaxSize()
+    )
+
+    LaunchedEffect(isRefreshing) {
+        if (isRefreshing) {
+            delay(1000)
+            itemCount += 5
+            isRefreshing = false
+        }
+    }
+
+    PullToRefreshBox(
+        isRefreshing = isRefreshing,
+        onRefresh = onRefresh,
+        state = state)
+    {
+        Box(Modifier
         .verticalScroll(scrollState)
         .height(800.dp),
         contentAlignment = Alignment.TopCenter)
-    {
-        Image(
-            painter = backImage,
-            contentDescription = null,
-            contentScale = ContentScale.FillBounds,
-            modifier = Modifier.fillMaxSize()
-        )
-        WeatherLayout()
+        {
+            WeatherLayout()
+        }
     }
 }
 
