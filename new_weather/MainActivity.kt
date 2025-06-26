@@ -37,13 +37,12 @@ class MainActivity : AppCompatActivity() {
     private lateinit var dialog: AlertDialog
 
     override fun onStart(){super.onStart()}
-    override fun onPause(){super.onPause()}
-
-    override fun onResume() {
-        super.onResume()
-        startLocationUpates()
+    override fun onPause() {
+        super.onPause()
+        stopLocationUpdates()
     }
 
+    override fun onResume() {super.onResume()}
     override fun onStop(){super.onStop()}
     override fun onDestroy(){super.onDestroy()}
     override fun onRestart(){super.onRestart()}
@@ -54,7 +53,6 @@ class MainActivity : AppCompatActivity() {
 
         setSupportActionBar(findViewById(R.id.my_toolbar))
         supportActionBar
-
 
         //Here be your permissions request, everybody else gets suppressed.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -77,7 +75,6 @@ class MainActivity : AppCompatActivity() {
         dialog.show()
 
         get_location(this)
-        startLocationUpates()
     }
     
     fun feed_success(current: Current, forc: Forecast) {
