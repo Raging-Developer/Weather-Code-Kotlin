@@ -60,6 +60,9 @@ fun setComposableContent(composeView: ComposeView){
 @Composable
 fun BackGroundImage() {
     val backImage = painterResource(R.drawable.night_time)
+    val context = LocalContext.current
+    val displayMetrics = context.resources.displayMetrics
+    val height = displayMetrics.heightPixels
     var scrollState = rememberScrollState()
     var isRefreshing by remember{ mutableStateOf(false) }
     val state = rememberPullToRefreshState()
@@ -86,7 +89,7 @@ fun BackGroundImage() {
     {
         Box(Modifier
         .verticalScroll(scrollState)
-        .height(800.dp),
+        .height(height.dp),
         contentAlignment = Alignment.TopCenter)
         {
             WeatherLayout()
