@@ -20,37 +20,33 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import java.util.Locale
 
-data class GetLocation(var callback: LocationCallback) {
+data class GetLocation(var fusedClient: FusedLocationProviderClient) {
     companion object {
-        lateinit var fusedClient: FusedLocationProviderClient
-        lateinit var callback: LocationCallback
+        lateinit var fusedClient: FusedLocationProviderClient        
         lateinit var locRequest: LocationRequest
     }
 }
 
 @SuppressLint("MissingPermission")
-fun get_location(context: Context) {
+internal fun get_location(context: Context) {
     fusedClient = LocationServices.getFusedLocationProviderClient(context)
 
-    callback = object : LocationCallback() {
-        override fun onLocationResult(locationResult: LocationResult) {
-            super.onLocationResult(locationResult)
-            for (l in locationResult.locations) {
-                if (l != null) {
-                    latitude = l.latitude
-                    longitude = l.longitude
-                    api_location = "${latitude},${longitude}"
-                    startLocationUpates(context)
-                }
+    fusedClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY , object : CancellationToken() {
+        override fun onCanceledRequested(p0: OnTokenCanceledListener) = CancellationTokenSource().token
+        override fun isCancellationRequested() = false
+    })
+        .addOnSuccessListener { l: Location? ->
+            if (l != null) {
+                latitude = l.latitude
+                longitude = l.longitude
+                api_location = "${latitude},${longitude}"
+                useLocationUpates(context)
             }
         }
-    }
 
-    locRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 300000)
+     locRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 300000)
         .setWaitForAccurateLocation(true)
         .build()
-
-    fusedClient.requestLocationUpdates(locRequest, callback, Looper.getMainLooper())
 }
 
 fun startLocationUpates(context: Context) {
@@ -91,7 +87,4 @@ fun use_lat_and_long(context: Context ) {
     }
 }
 
-fun stopLocationUpdates(){
-    fusedClient.removeLocationUpdates(callback)
-}
 
