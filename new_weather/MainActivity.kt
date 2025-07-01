@@ -37,11 +37,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var dialog: AlertDialog
 
     override fun onStart(){super.onStart()}
-    override fun onPause() {
-        super.onPause()
-        stopLocationUpdates()
-    }
-
+    override fun onPause() {super.onPause()}
     override fun onResume() {super.onResume()}
     override fun onStop(){super.onStop()}
     override fun onDestroy(){super.onDestroy()}
