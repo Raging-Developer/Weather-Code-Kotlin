@@ -92,6 +92,9 @@ fun BackGroundImage() {
         .height(height.dp),
         contentAlignment = Alignment.TopCenter)
         {
+           if (isRefreshing){
+                 useLocationUpates(context as MainActivity)
+            }
             WeatherLayout()
         }
     }
