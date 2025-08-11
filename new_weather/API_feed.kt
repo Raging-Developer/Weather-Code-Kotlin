@@ -11,17 +11,17 @@ import java.net.URL
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 
-//Handler goes inside the execute, well nobody told me that.
-fun getJsonFromAPI(location: String, weather: MainActivity) {
+//Handler goes inside the execute, well nobody mentioned that.
+fun getJsonFromAPI(location: String, callback: ApiResponse) {
     val executor: Executor = Executors.newSingleThreadExecutor()
+    val weak_weather = WeakReference(callback)
 
     executor.execute { //This be your doInBackground
         var result = StringBuilder()
         val handler = Handler(Looper.getMainLooper())
         var error: Exception? = null
-        val client_id = ""
+        val client_id = "391a795e9a804ff4be3235120211006"
         val api_url = "https://api.weatherapi.com/v1/"
-        val weak_weather = WeakReference<MainActivity>(weather).get()
 
         try {
             val url = URL(api_url + "forecast.json?key=" + client_id + "&q=" + location + "&days=5")
@@ -29,6 +29,7 @@ fun getJsonFromAPI(location: String, weather: MainActivity) {
             conn.connect()
 
             val input = conn.inputStream
+//            val reader = BufferedReader(InputStreamReader(input))
             val reader = input.bufferedReader()
             var line: String?
 
@@ -40,32 +41,39 @@ fun getJsonFromAPI(location: String, weather: MainActivity) {
             error = e
         }
 
-        handler.postDelayed( { //This be your onPostExecute, which used to be a seperate task            
-
-            if (error != null){
-                weak_weather?.feed_failure(error)
-            }
-
-            try {
-                if (result.isNotEmpty()) {
-                     val data = JSONObject(result.toString())
-                    //The feed does not have a single root but forecast, current and location.
-                    //And we don't need location.
-                    Current().populate(data.optJSONObject("current")!!)
-                    Forecast().populate(data.getJSONObject("forecast"))
-                    weak_weather?.feed_success()
-                }
-            }
-            catch (e: Exception) {
-                weak_weather?.feed_failure(e)
-            }
-        }, 0L)
+        handler.postDelayed( { //This be your onPostExecute
+            handleApiResponse(result, error, weak_weather.get())
+        }, 10L)
     }
 }
 
+// New internal function to handle the API response logic
+internal fun handleApiResponse(
+    result: StringBuilder,
+    error: Exception?,
+    weak_ref: ApiResponse?
+) {
+    if (weak_ref == null) return
 
+    if (error != null) {
+        weak_ref.feed_failure(error)
+        return
+    }
 
+    if (result.isEmpty()) {
+        weak_ref.feed_failure(Exception("Empty response from server"))
+        return
+    }
 
-
-
-
+    try {
+        //current is today's weather, forc is three days hence including today (?)
+        val data = JSONObject(result.toString())
+        //The feed does not have a single root but forecast, current and location.
+        //And we don't need location.
+        Current().populate(data.optJSONObject("current"))
+        Forecast().populate(data.getJSONObject("forecast"))
+        weak_ref.feed_success()
+    } catch (e: Exception) { // Handles JSON parsing or data population errors
+        weak_ref.feed_failure(e)
+    }
+}
