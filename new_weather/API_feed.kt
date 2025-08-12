@@ -20,7 +20,7 @@ fun getJsonFromAPI(location: String, callback: ApiResponse) {
         var result = StringBuilder()
         val handler = Handler(Looper.getMainLooper())
         var error: Exception? = null
-        val client_id = "391a795e9a804ff4be3235120211006"
+        val client_id = ""
         val api_url = "https://api.weatherapi.com/v1/"
 
         try {
@@ -77,3 +77,4 @@ internal fun handleApiResponse(
         weak_ref.feed_failure(e)
     }
 }
+
