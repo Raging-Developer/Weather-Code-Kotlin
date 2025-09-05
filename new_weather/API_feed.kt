@@ -1,80 +1,61 @@
 package com.app.new_weather
 
-import android.os.Handler
-import android.os.Looper
+import com.app.new_weather.LatLong.Companion.client_id
 import com.app.new_weather.data.Current
 import com.app.new_weather.data.Forecast
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.json.JSONObject
-import java.lang.ref.WeakReference
 import java.net.HttpURLConnection
 import java.net.URL
-import java.util.concurrent.Executor
-import java.util.concurrent.Executors
 
-//Handler goes inside the execute, well nobody mentioned that.
-fun getJsonFromAPI(location: String, callback: ApiResponse) {
-    val executor: Executor = Executors.newSingleThreadExecutor()
-    val weak_weather = WeakReference(callback)
 
-    executor.execute { //This be your doInBackground
-        var result = StringBuilder()
-        val handler = Handler(Looper.getMainLooper())
-        var error: Exception? = null
-        val client_id = ""
+
+//The same thing again, but using coroutines instead of executor/handler
+suspend fun getJsonFromAPI(location: String) {
+    withContext(Dispatchers.IO) {
+        val result = StringBuilder()
+        val client_id = client_id
         val api_url = "https://api.weatherapi.com/v1/"
 
         try {
             val url = URL(api_url + "forecast.json?key=" + client_id + "&q=" + location + "&days=5")
-            val conn = url.openConnection() as HttpURLConnection
+            val conn = url.openConnection() as HttpURLConnection           
+             conn.connectTimeout = 15000 // 15 seconds
+             conn.readTimeout = 15000    // 15 seconds
             conn.connect()
 
+            if (conn.responseCode !in 200..299) {
+                // You can get more details from conn.errorStream if needed
+                throw Exception("API request failed with response code: ${'$'}{conn.responseCode}")
+            }
+
             val input = conn.inputStream
-//            val reader = BufferedReader(InputStreamReader(input))
             val reader = input.bufferedReader()
             var line: String?
-
             while (reader.readLine().also { line = it } != null) {
                 result.append(line)
             }
-        }
-        catch (e: Exception){
-            error = e
+            reader.close()
+            input.close()
+            conn.disconnect()
+
+        } catch (e: Exception) {
+            throw Exception("Network request failed: ${'$'}{e.message}", e)
         }
 
-        handler.postDelayed( { //This be your onPostExecute
-            handleApiResponse(result, error, weak_weather.get())
-        }, 10L)
+        if (result.isEmpty()) {
+            throw Exception("Empty response from server")
+        }
+
+        try {
+            val data = JSONObject(result.toString())
+            // The feed does not have a single root but forecast, current and location.
+            // And we don't need location.
+            Current().populate(data.optJSONObject("current"))
+            Forecast().populate(data.getJSONObject("forecast"))
+        } catch (e: Exception) {
+            throw Exception("Failed to parse weather data: ${'$'}{e.message}", e)
+        }
     }
 }
-
-// New internal function to handle the API response logic
-internal fun handleApiResponse(
-    result: StringBuilder,
-    error: Exception?,
-    weak_ref: ApiResponse?
-) {
-    if (weak_ref == null) return
-
-    if (error != null) {
-        weak_ref.feed_failure(error)
-        return
-    }
-
-    if (result.isEmpty()) {
-        weak_ref.feed_failure(Exception("Empty response from server"))
-        return
-    }
-
-    try {
-        //current is today's weather, forc is three days hence including today (?)
-        val data = JSONObject(result.toString())
-        //The feed does not have a single root but forecast, current and location.
-        //And we don't need location.
-        Current().populate(data.optJSONObject("current"))
-        Forecast().populate(data.getJSONObject("forecast"))
-        weak_ref.feed_success()
-    } catch (e: Exception) { // Handles JSON parsing or data population errors
-        weak_ref.feed_failure(e)
-    }
-}
-
