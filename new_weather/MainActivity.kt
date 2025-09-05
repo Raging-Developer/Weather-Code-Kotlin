@@ -36,80 +36,97 @@ open class MainActivity :  AppCompatActivity(), ApiResponse {
     private val viewModel: MainViewModel by viewModels()
 
     override fun onStart() {super.onStart()}
+
     override fun onPause() {super.onPause()}
+
     override fun onResume() {super.onResume()}
+
     override fun onStop() {super.onStop()}
+
     override fun onDestroy() {super.onDestroy()}
+
     override fun onRestart() {super.onRestart()}
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_activity)
+        val compose_view = findViewById<ComposeView>(R.id.compose_view) //to get my toolbar in
 
         setSupportActionBar(findViewById(R.id.my_toolbar))
         supportActionBar
 
         requestPermissions()
+        lifecycleScope.launch {
+            get_location(this@MainActivity)
+        }
 
-        //This is now going to be called from the viewModel
         dialog = AlertDialog.Builder(this).create()
         dialog.setCancelable(false)
+        dialog.setMessage("Give me a few secs...\n  (or the api may be offline)")
+        if (!viewModel.showSuccessScreen.value) {
+            dialog.show()
+        }
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
-                    viewModel.isLoading.collect { isLoading ->
-                        if (isLoading) {
-                            dialog.setMessage("Give me a few secs...\n  (or the api may be offline)")
-                            dialog.show()
-                        } else {
+                    viewModel.weatherUiState.collect { uiState ->
+                        if (viewModel.showSuccessScreen.value) {
+                            if (dialog.isShowing) { dialog.dismiss() }
+                            compose_view.setContent {
+                                New_WeatherTheme {
+                                    Surface(
+                                        modifier = Modifier.fillMaxSize(),
+                                        color = MaterialTheme.colorScheme.background
+                                    ) {
+                                        setComposableContent(uiState)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                launch {
+                    viewModel.showSuccessScreen.collect { showScreen ->
+                        if (showScreen) {
                             if (dialog.isShowing) {
                                 dialog.dismiss()
                             }
                         }
                     }
                 }
-                launch {
-                    viewModel.showSuccessScreen.collect { shouldShow ->
-                        if (shouldShow) {
-                            val compose_view = ComposeView(this@MainActivity)
-                            findViewById<ComposeView>(R.id.compose_view)
-                                .setContent {
-                                    New_WeatherTheme {
-                                        Surface(
-                                            modifier = Modifier.fillMaxSize(),
-                                            color = MaterialTheme.colorScheme.background
-                                        ) {
-                                            setComposableContent(compose_view)
-                                        }
-                                    }
-                                }
-                            viewModel.successScreen()
-                        }
-                    }
-                }
+
                 launch {
                     viewModel.errorMessage.collect { errorMessage ->
                         if (errorMessage != null) {
+                            if (dialog.isShowing) {
+                                dialog.dismiss()
+                            }
                             Toast.makeText(this@MainActivity, errorMessage, Toast.LENGTH_LONG)
                                 .show()
-                            viewModel.errorMessage()
                         }
                     }
                 }
             }
         }
-
-        viewModel.startedLoading()
-        get_location(this) // In get_location, you'll pass 'this' which is an ApiResponseCallback
     }
 
     override fun feed_success() {
-        viewModel.onSuccess()
+        runOnUiThread {
+            if (::dialog.isInitialized) {
+                dialog.dismiss()
+            }
+            viewModel.onSuccess()
+        }
     }
 
     override fun feed_failure(e: Exception?) {
-        viewModel.onFailure(e)
+        runOnUiThread {
+            if (::dialog.isInitialized) {
+                dialog.dismiss()
+            }
+            viewModel.onFailure(e)
+        }
     }
 
     private fun requestPermissions() {
@@ -130,11 +147,11 @@ open class MainActivity :  AppCompatActivity(), ApiResponse {
         }
     }
 
+
     //The toolbar and menu stuff
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.aboutmenu, menu)
         return true
-//        return super.onCreateOptionsMenu(menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -148,17 +165,20 @@ open class MainActivity :  AppCompatActivity(), ApiResponse {
                     "The weather where you are, with some graphics from www.deviantart.com/vclouds,"
                             + "the responses are from weatherapi.com (Which is only three days, including today)\n"
                             + "\nThis is just a test peice that takes your location from the gps and uses it to "
-                            + "query the weather api. Rotating your device will cause it to reload.\n"
+                            + "query the weather api. Rotate or swipe to reload.\n"
                 )
                 startActivity(a)
             }
+
             else -> {
                 super.onOptionsItemSelected(item)
             }
         }
-        return false
+        return true
     }
 }
+
+
 
 
 
