@@ -9,4 +9,4 @@ It works, I should not sound so surprised but kotlin is proving a challenge. I s
 CoBoL and C days. Which is ironic since Kotlin now uses functions without classes. I am also taking an app that works in Java and just
 mirroring it in Kotlin. Using the old maxim, if it ain't broke, don't fix it. Unfortunately that relies upon a given definition of 'broke'.
 
-
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/Raging-Developer/Weather-Code-Kotlin)
